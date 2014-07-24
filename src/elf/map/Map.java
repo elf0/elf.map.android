@@ -16,23 +16,26 @@ import java.util.List;
 import org.apache.http.util.EncodingUtils;
 
 public class Map {
-	private final static float _F2L = (float)(4294967296.0 / 360.0);
-	private final static float _L2F = (float)(360.0 / 4294967296.0);
+	private final static float LONGITUDE_F2L = (float)(4294967296.0 / 360.0);
+	private final static float LONGITUDE_L2F = (float)(360.0 / 4294967296.0);
 
 	public static long Longitude_FloatToLong(float fLongitude){
-		return (long)((180.0f + fLongitude) * _F2L);
-	}
-
-	public static long Latitude_FloatToLong(float fLatitude){
-		return (long)((180.0f - fLatitude) * _F2L);
+		return (long)((180.0f + fLongitude) * LONGITUDE_F2L);
 	}
 
 	public static float Longitude_LongToFloat(long nLongitude){
-		return nLongitude * _L2F - 180.0f;
+		return nLongitude * LONGITUDE_L2F - 180.0f;
+	}
+
+	private final static float LATITUDE_F2L = (float)(4294967296.0 / 360.0);
+	private final static float LATITUDE_L2F = (float)(360.0 / 4294967296.0);
+
+	public static long Latitude_FloatToLong(float fLatitude){
+		return (long)((90.0f - fLatitude) * LATITUDE_F2L);
 	}
 
 	public static float Latitude_LongToFloat(long nLatitude){
-		return 180.0f - nLatitude * _L2F;
+		return 90.0f - nLatitude * LATITUDE_L2F;
 	}
 
 	public boolean Open(String strFileName){
@@ -57,7 +60,30 @@ public class Map {
 		byte[] subBuffer;
 		int iLine;
 		int nLineSize;
-		for(int i = 0, n = buffer.length; i < n; ++i){
+		int i = 0;
+		int n = buffer.length;
+		iLine = i;
+		while(buffer[i] != '\n')
+			++i;
+		nLineSize = i - iLine;
+		subBuffer = new byte[nLineSize];
+		System.arraycopy(buffer, iLine, subBuffer, 0, nLineSize);
+		try {
+			strLine = new String(subBuffer, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			//				e.printStackTrace();
+			return false;
+		}
+		String[] items = strLine.split(",");
+		if(items.length != 4)
+			return false;
+		_ptCenter.Set(Long.valueOf(items[0]), Long.valueOf(items[1]));
+		++i;
+
+
+
+		for(; i < n; ++i){
 			iLine = i;
 			while(buffer[i] != '\n')
 				++i;
@@ -74,36 +100,55 @@ public class Map {
 			}
 
 
-			String[] items = strLine.split("\"");
+			items = strLine.split("\"");
 			if(items.length < 4){
 				Clear();
 				return false;
 			}
 
-			if("0".equals(items[0])){
+			switch(items[0]){
+			case "0":
 				AddLocation(items[1], Long.valueOf(items[2]), Long.valueOf(items[3]));
-			}
-			else if("1".equals(items[0])){
+				break;
+			case "1":{
+				WaterWay way = new WaterWay(items[1]);
+				for(int iLL = 2, nItems = items.length; iLL < nItems; iLL += 2){
+					way.Add(Long.valueOf(items[iLL]), Long.valueOf(items[iLL + 1]));
+				}
+				AddWaterWay(way);
+			}break;
+			case "2":{
+				Water water = new Water(items[1]);
+				for(int iLL = 2, nItems = items.length; iLL < nItems; iLL += 2){
+					water.Add(Long.valueOf(items[iLL]), Long.valueOf(items[iLL + 1]));
+				}
+				AddWater(water);
+			}break;
+			case "3":{
 				Way way = new Way(items[1]);
-				for(int iLL = 2, nItems = items.length - 2; iLL < nItems; iLL += 2){
+				for(int iLL = 2, nItems = items.length; iLL < nItems; iLL += 2){
 					way.Add(Long.valueOf(items[iLL]), Long.valueOf(items[iLL + 1]));
 				}
 				AddWay(way);
-			}
-			else if("2".equals(items[0])){
+			}break;
+			case "4":{
 				Area area = new Area(items[1]);
-				for(int iLL = 2, nItems = items.length - 2; iLL < nItems; iLL += 2){
+				for(int iLL = 2, nItems = items.length; iLL < nItems; iLL += 2){
 					area.Add(Long.valueOf(items[iLL]), Long.valueOf(items[iLL + 1]));
 				}
 				AddArea(area);
+			}break;
 			}
-
 		}
 		return true;
 	}
 
 	public void Close(){
 		Clear();
+	}
+
+	public final Point Center(){
+		return _ptCenter;
 	}
 
 	public List<NamedLocation> Locations(){
@@ -114,6 +159,21 @@ public class Map {
 		for(NamedLocation location: _locations){
 			if(rect.Contains(location))
 				locations.add(location);
+		}
+	}
+
+	public List<WaterWay> WaterWays(){
+		return _waterWays;
+	}
+
+	public void SelectWaterWays(Rect rect, List<WaterWay> ways){
+		for(WaterWay way: _waterWays){
+			for(Point location: way._points){
+				if(rect.Contains(location)){
+					ways.add(way);
+					break;
+				}
+			}
 		}
 	}
 
@@ -131,7 +191,22 @@ public class Map {
 			}
 		}
 	}
-	
+
+	public List<Water> Waters(){
+		return _waters;
+	}
+
+	public void SelectWaters(Rect rect, List<Water> waters){
+		for(Water water: _waters){
+			for(Point location: water._points){
+				if(rect.Contains(location)){
+					waters.add(water);
+					break;
+				}
+			}
+		}
+	}
+
 	public List<Area> Areas(){
 		return _areas;
 	}
@@ -146,29 +221,41 @@ public class Map {
 			}
 		}
 	}
-	
+
 	private void AddLocation(String strName, long nLongitude, long nLatitude){
 		NamedLocation l = new NamedLocation(strName, nLongitude, nLatitude);
 		_locations.add(l);
 	}
 
+	private void AddWaterWay(WaterWay way){
+//		if(_waterWays.size() < 1000)
+			_waterWays.add(way);
+	}
+
 	private void AddWay(Way way){
-//		if(_ways.size() < 4000)
+//		if(_ways.size() < 1000)
 			_ways.add(way);
 	}
 
+	private void AddWater(Water water){
+		_waters.add(water);
+	}
+
 	private void AddArea(Area area){
-//		if(_areas.size() < 2000)
+//		if(_areas.size() < 1000)
 			_areas.add(area);
 	}
-	
+
 	private void Clear(){
 		_areas.clear();
 		_ways.clear();
 		_locations.clear();
 	}
 
+	private Point _ptCenter = new Point();
 	private List<NamedLocation> _locations = new ArrayList<NamedLocation>();
 	private List<Way> _ways = new ArrayList<Way>();
+	private List<WaterWay> _waterWays = new ArrayList<WaterWay>();
+	private List<Water> _waters = new ArrayList<Water>();
 	private List<Area> _areas = new ArrayList<Area>();
 }

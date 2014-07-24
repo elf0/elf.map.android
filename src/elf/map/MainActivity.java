@@ -54,6 +54,7 @@ public class MainActivity extends Activity{
 		//MapView
 		_mvMap = new MapView(this, _mpMapPainter);
 		_mvMap.SetLevel(10);
+		_mvMap.SetCenter(_map.Center());
 
 		setContentView(R.layout.activity_main);
 		FrameLayout fl = (FrameLayout)findViewById(R.id.rlMainLayout);
@@ -68,6 +69,9 @@ public class MainActivity extends Activity{
 			_mvMap.SetGps(pref.getFloat("Longitude", 0.0f), pref.getFloat("Latitude", 0.0f));
 			//			_mvMap.setGps(1.0f, 1.0f);
 		}
+
+		Button btnMapCenter = (Button)findViewById(R.id.btnMapCenter);
+		btnMapCenter.setOnClickListener(_oclMapCenterListener); 
 
 		Button btnGps = (Button)findViewById(R.id.btnGps);
 		btnGps.setOnClickListener(_oclGpsListener); 
@@ -122,17 +126,25 @@ public class MainActivity extends Activity{
 			}});
 	}
 
+	private OnClickListener _oclMapCenterListener = new OnClickListener() {
+		public void onClick(View v) {
+			_mvMap.SetLevel(10);
+			_mvMap.SetCenter(_map.Center());
+//			_mvMap.invalidate();
+		}
+	};
+	
 	private OnClickListener _oclGpsListener = new OnClickListener() {
 		public void onClick(View v) {
 			_mvMap.Home();
-			_mvMap.invalidate();
+//			_mvMap.invalidate();
 		}
 	};
 
 	private OnClickListener _oclZoomOutListener = new OnClickListener() {
 		public void onClick(View v) {
 			_mvMap.DecreaseLevel();
-			_mvMap.invalidate();
+//			_mvMap.invalidate();
 		}
 	};
 

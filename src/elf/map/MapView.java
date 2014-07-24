@@ -90,6 +90,18 @@ public class MapView extends View{
 		_rtSrc.set((int)_szMapMargin.Width(), (int)_szMapMargin.Height(), (int)_szMapMargin.Width() + w, (int)_szMapMargin.Height() + h);
 	}
 
+	public void SetCenter(Point ptCenter){
+		_ptLocationCenter.Set(ptCenter);
+		int w = getWidth();
+		int h = getHeight();
+		_rtSrc.set((int)_szMapMargin.Width(), (int)_szMapMargin.Height(), (int)_szMapMargin.Width() + w, (int)_szMapMargin.Height() + h);
+
+		if(_bmpMap != null){
+			Redraw();
+			invalidate();
+		}
+	}
+
 	public void SetCenter(float fLongitude, float fLatitude){
 		_SetCenter(fLongitude, fLatitude);
 		if(_bmpMap != null){
@@ -99,8 +111,8 @@ public class MapView extends View{
 	}
 
 	public void PixelOffset(int nX, int nY){
-		long nLongitudeOffset = _mpMapPainter.PixelToLocation(nX);
-		long nLatitudeOffset = _mpMapPainter.PixelToLocation(nY);
+		long nLongitudeOffset = _mpMapPainter.PixelToLongitude(nX);
+		long nLatitudeOffset = _mpMapPainter.PixelToLatitude(nY);
 
 		_ptLocationCenter.Offset(nLongitudeOffset, nLatitudeOffset);
 
@@ -113,8 +125,8 @@ public class MapView extends View{
 	public void SetLevel(int nLevel){
 		if(nLevel > 20)
 			nLevel = 20;
-		else if(nLevel < 0)
-			nLevel = 0;
+		else if(nLevel < 8)
+			nLevel = 8;
 		_nLevel = nLevel;
 	}
 
@@ -141,9 +153,12 @@ public class MapView extends View{
 		_mpMapPainter.Begin(canvas, _ptLocationCenter, _nLevel);
 		_mpMapPainter.DrawBackground();
 		_mpMapPainter.DrawAreas();
+		_mpMapPainter.DrawWaters();
+		_mpMapPainter.DrawWaterWays();
 		_mpMapPainter.DrawWays();
 		_mpMapPainter.DrawLocations();
 		_mpMapPainter.DrawNameOfAreas();
+		_mpMapPainter.DrawNameOfWaters();
 
 		_paint.setColor(Color.BLUE);
 		_mpMapPainter.DrawOval(_ptGps, 5.0f, 5.0f, _paint);
@@ -157,6 +172,7 @@ public class MapView extends View{
 	@Override
 	protected void onDraw(Canvas canvas) {
 		//		if(_bmpMap != null)
+//		canvas.drawColor(0xFF808080);
 		canvas.drawBitmap(_bmpMap, _rtSrc, _rtfDest, _paint);
 
 		//		canvas.drawText(String.valueOf(_rtSrc.left) + ", " + String.valueOf(_rtSrc.top) + ", " + String.valueOf(_rtSrc.width()) + ", " + String.valueOf(_rtSrc.height()), 320, 20, _textPaint);
@@ -178,7 +194,6 @@ public class MapView extends View{
 		//		int nBmpHalfSize = (w > h? w : h) / 2;
 		//		int nBmpSize = nBmpHalfSize * 2;
 		//		_szMapMargin.Set((nBmpSize - w) / 2, (nBmpSize - h) / 2);
-		_Home();
 
 		if(_bmpMap != null)
 			_bmpMap.recycle();

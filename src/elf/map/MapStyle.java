@@ -12,7 +12,8 @@ public class MapStyle {
 	private int _nBackgroundColor = Color.BLACK;
 	private int _nTextColor = Color.WHITE;
 	private int _nWayColor = 0xFFA0A0A0;
-	private int _nAreaColor = 0xFF00A0FF;
+	private int _nWaterColor = 0xFF00A0FF;
+	private int _nAreaColor = 0x40FFB0FF;
 	
 	public int BackgroundColor(){
 		return _nBackgroundColor;
@@ -36,6 +37,14 @@ public class MapStyle {
 	
 	public void setWayColor(int color){
 		_nWayColor = color;
+	}
+	
+	public int WaterColor(){
+		return _nWaterColor;
+	}
+	
+	public void setWaterColor(int color){
+		_nWaterColor = color;
 	}
 	
 	public int AreaColor(){

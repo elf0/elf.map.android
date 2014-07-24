@@ -22,15 +22,20 @@ public class MapPainter {
 	private MapStyle _style;
 
 	private List<NamedLocation> _locations = new ArrayList<NamedLocation>();
+	private List<WaterWay> _waterWays = new ArrayList<WaterWay>();
 	private List<Way> _ways = new ArrayList<Way>();
+	private List<Water> _waters = new ArrayList<Water>();
 	private List<Area> _areas = new ArrayList<Area>();
 	private Rect _rtLocationRect = new Rect();
 
 	private int _nLevel = 0;
 	private int _nTileSizeShift = 8;
-	private float _fSize = 256.0f;
-	private float _fLocationToPixel = (float)(256.0 / 4294967296.0);
-	private float _fPixelToLocation = (float)(4294967296.0 / 256.0);
+	private float _fWidth = 256.0f;
+	private float _fHeight = 128.0f;
+	private float _fLongitudeToPixel = (float)(256.0 / 4294967296.0);
+	private float _fPixelToLongitude = (float)(4294967296.0 / 256.0);
+	private float _fLatitudeToPixel = (float)(128.0 / 4294967296.0);
+	private float _fPixelToLatitude = (float)(4294967296.0 / 128.0);
 
 	//
 	private Paint _paint = new Paint();
@@ -50,9 +55,9 @@ public class MapPainter {
 	//		else if(nTileSizeShift < 8)
 	//			nTileSizeShift = 8;//256
 	//
-	//		_fSize = 1 << (_nLevel + nTileSizeShift);
-	//		_fLocationToPixel = (float)(_fSize / 4294967296.0);
-	//		_fPixelToLocation = (float)(4294967296.0 / _fSize);
+	//		_fWidth = 1 << (_nLevel + nTileSizeShift);
+	//		_fLongitudeToPixel = (float)(_fWidth / 4294967296.0);
+	//		_fPixelToLongitude = (float)(4294967296.0 / _fWidth);
 	//
 	//		_nTileSizeShift = nTileSizeShift;
 	//	}
@@ -63,20 +68,27 @@ public class MapPainter {
 		else if(nLevel < 0)
 			nLevel = 0;
 
-		_fSize = 1 << (nLevel + _nTileSizeShift);
-		_fLocationToPixel = (float)(_fSize / 4294967296.0);
-		_fPixelToLocation = (float)(4294967296.0 / _fSize);
+		int nWidth = 1 << (nLevel + _nTileSizeShift);
 
+		_fWidth = nWidth;
+		_fLongitudeToPixel = (float)(_fWidth / 4294967296.0);
+		_fPixelToLongitude = (float)(4294967296.0 / _fWidth);
+
+		_fHeight = nWidth >> 1;
+//		_fLatitudeToPixel = (float)(_fHeight / 4294967296.0);
+//		_fPixelToLatitude = (float)(4294967296.0 / _fHeight);
+		_fLatitudeToPixel = (float)(_fWidth / 4294967296.0);
+		_fPixelToLatitude = (float)(4294967296.0 / _fWidth);
 		_nLevel = nLevel;
 	}
 
-//	public void DecreaseLevel(){
-//		SetLevel(_nLevel - 1);
-//	}
-//
-//	public void IncreaseLevel(){
-//		SetLevel(_nLevel + 1);
-//	}
+	//	public void DecreaseLevel(){
+	//		SetLevel(_nLevel - 1);
+	//	}
+	//
+	//	public void IncreaseLevel(){
+	//		SetLevel(_nLevel + 1);
+	//	}
 
 	public void SetStyle(MapStyle style){
 		_style = style;
@@ -86,36 +98,43 @@ public class MapPainter {
 		_map = map;
 	}
 
-	public long LocationToPixel(long nLocation){
-		return (int)(nLocation * _fLocationToPixel);
+	public long LongitudeToPixel(long nLongitude){
+		return (int)(nLongitude * _fLongitudeToPixel);
 	}
 
-	public long PixelToLocation(long nPixel){
-		return (int)(nPixel * _fPixelToLocation);
+	public long PixelToLongitude(long nPixel){
+		return (int)(nPixel * _fPixelToLongitude);
+	}
+	
+	public long LatitudeToPixel(long nLatitude){
+		return (int)(nLatitude * _fLatitudeToPixel);
 	}
 
+	public long PixelToLatitude(long nPixel){
+		return (int)(nPixel * _fPixelToLatitude);
+	}
 	//	private long LongitudeToX(float fLongitude){
 	//		long nLongitude = Map.Longitude_FloatToLong(fLongitude);
-	//		return LocationToPixel(nLongitude);
+	//		return LongitudeToPixel(nLongitude);
 	//	}
 	//	
 	//	private long LatitudeToY(float fLatitude){
 	//		long nLatitude = Map.Latitude_FloatToLong(fLatitude);
-	//		return LocationToPixel(nLatitude);
+	//		return LatitudeToPixel(nLatitude);
 	//	}
 
 
 	public void Begin(Canvas canvas, Point ptLocation, int nLevel){
 		SetLevel(nLevel);
-		
+
 		_canvas = canvas;
 
-		_rtLocationRect.SetSize(PixelToLocation(canvas.getWidth()), PixelToLocation(canvas.getHeight()));
+		_rtLocationRect.SetSize(PixelToLongitude(canvas.getWidth()), PixelToLatitude(canvas.getHeight()));
 		_rtLocationRect.SetCenter(ptLocation.X(), ptLocation.Y());
 
 		_textPaint.setColor(_style.TextColor());
 	}
-	
+
 	public void End(){
 		_areas.clear();
 		_ways.clear();
@@ -123,13 +142,13 @@ public class MapPainter {
 		_canvas = null;
 	}
 
-//	public void DrawMap(){
-//		DrawBackground();
-//		DrawAreas();
-//		DrawWays();
-//		DrawLocations();
-//		DrawNameOfAreas();
-//	}
+	//	public void DrawMap(){
+	//		DrawBackground();
+	//		DrawAreas();
+	//		DrawWays();
+	//		DrawLocations();
+	//		DrawNameOfAreas();
+	//	}
 
 	public void DrawBackground(){
 		_canvas.drawColor(_style.BackgroundColor());
@@ -141,13 +160,40 @@ public class MapPainter {
 		float fX;
 		float fY;
 		for(NamedLocation location: locations){
-			fX = LocationToPixel(location.X() - _rtLocationRect.Left());
-			fY = LocationToPixel(location.Y() - _rtLocationRect.Top());
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
 			//			canvas.drawPoint(fX, fY, _paint);
 			_canvas.drawText(location.strName, fX, fY, _textPaint);
 		}
 	}
 
+	public void DrawWaterWays(){
+		List<WaterWay> ways = SelectWaterWays(_rtLocationRect);
+
+		Path path = new Path();
+		_paint.setColor(_style.WaterColor());
+		_paint.setStyle(Paint.Style.STROKE);
+
+		float fX;
+		float fY;
+		Point location;
+		for(WaterWay way: ways){
+			location = way._points.get(0);
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
+			path.moveTo(fX, fY);
+			for(int i = 1, n = way._points.size(); i < n; ++i){
+				location = way._points.get(i);
+				fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+				fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
+				path.lineTo(fX, fY);
+			}
+			_canvas.drawPath(path, _paint);
+			path.reset();
+
+		}
+	}
+	
 	public void DrawWays(){
 		List<Way> ways = SelectWays(_rtLocationRect);
 
@@ -160,18 +206,58 @@ public class MapPainter {
 		Point location;
 		for(Way way: ways){
 			location = way._points.get(0);
-			fX = LocationToPixel(location.X() - _rtLocationRect.Left());
-			fY = LocationToPixel(location.Y() - _rtLocationRect.Top());
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
 			path.moveTo(fX, fY);
 			for(int i = 1, n = way._points.size(); i < n; ++i){
 				location = way._points.get(i);
-				fX = LocationToPixel(location.X() - _rtLocationRect.Left());
-				fY = LocationToPixel(location.Y() - _rtLocationRect.Top());
+				fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+				fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
 				path.lineTo(fX, fY);
 			}
 			_canvas.drawPath(path, _paint);
 			path.reset();
 
+		}
+	}
+
+	public void DrawWaters(){
+		List<Water> waters = SelectWaters(_rtLocationRect);
+
+		Path path = new Path();
+		_paint.setColor(_style.WaterColor());
+		_paint.setStyle(Paint.Style.FILL);
+
+		float fX;
+		float fY;
+		Point location;
+		for(Water water: waters){
+			location = water._points.get(0);
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
+			path.moveTo(fX, fY);
+			for(int i = 1, n = water._points.size(); i < n; ++i){
+				location = water._points.get(i);
+				fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+				fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
+				path.lineTo(fX, fY);
+			}
+			path.close();
+			_canvas.drawPath(path, _paint);
+			path.reset();
+		}
+	}
+
+	public void DrawNameOfWaters(){
+		float fX;
+		float fY;
+		Point location;
+
+		for(Water water: _waters){
+			location = water._points.get(0);
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
+			_canvas.drawText(water.strName, fX, fY, _textPaint);
 		}
 	}
 
@@ -187,13 +273,13 @@ public class MapPainter {
 		Point location;
 		for(Area area: areas){
 			location = area._points.get(0);
-			fX = LocationToPixel(location.X() - _rtLocationRect.Left());
-			fY = LocationToPixel(location.Y() - _rtLocationRect.Top());
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
 			path.moveTo(fX, fY);
 			for(int i = 1, n = area._points.size(); i < n; ++i){
 				location = area._points.get(i);
-				fX = LocationToPixel(location.X() - _rtLocationRect.Left());
-				fY = LocationToPixel(location.Y() - _rtLocationRect.Top());
+				fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+				fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
 				path.lineTo(fX, fY);
 			}
 			path.close();
@@ -209,20 +295,20 @@ public class MapPainter {
 
 		for(Area area: _areas){
 			location = area._points.get(0);
-			fX = LocationToPixel(location.X() - _rtLocationRect.Left());
-			fY = LocationToPixel(location.Y() - _rtLocationRect.Top());
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
 			_canvas.drawText(area.strName, fX, fY, _textPaint);
 		}
 	}
 
 	private RectF _rtfRect = new RectF();
-	
+
 	public void DrawOval(Point ptLocation, float fRadiusX, float fRadiusY, Paint paint){
 		if(!_rtLocationRect.Contains(ptLocation))
 			return;
-		
-		float fX = LocationToPixel(ptLocation.X() - _rtLocationRect.Left());
-		float fY = LocationToPixel(ptLocation.Y() - _rtLocationRect.Top());
+
+		float fX = LongitudeToPixel(ptLocation.X() - _rtLocationRect.Left());
+		float fY = LatitudeToPixel(ptLocation.Y() - _rtLocationRect.Top());
 		_rtfRect.set(fX - fRadiusX, fY - fRadiusY, fX + fRadiusX, fY + fRadiusY);
 		_canvas.drawOval(_rtfRect, paint);
 	}
@@ -230,9 +316,9 @@ public class MapPainter {
 	public void DrawText(Point ptLocation, String strText, Paint paint){
 		if(!_rtLocationRect.Contains(ptLocation))
 			return;
-		
-		float fX = LocationToPixel(ptLocation.X() - _rtLocationRect.Left());
-		float fY = LocationToPixel(ptLocation.Y() - _rtLocationRect.Top());
+
+		float fX = LongitudeToPixel(ptLocation.X() - _rtLocationRect.Left());
+		float fY = LatitudeToPixel(ptLocation.Y() - _rtLocationRect.Top());
 		_canvas.drawText(strText, fX, fY, paint);
 
 	}
@@ -242,11 +328,23 @@ public class MapPainter {
 		_map.SelectLocations(rtLocationRect, _locations);
 		return _locations;
 	}
+	
+	private List<WaterWay> SelectWaterWays(Rect rtLocationRect){
+		_waterWays.clear();
+		_map.SelectWaterWays(rtLocationRect, _waterWays);
+		return _waterWays;
+	}
 
 	private List<Way> SelectWays(Rect rtLocationRect){
 		_ways.clear();
 		_map.SelectWays(rtLocationRect, _ways);
 		return _ways;
+	}
+
+	private List<Water> SelectWaters(Rect rtLocationRect){
+		_waters.clear();
+		_map.SelectWaters(rtLocationRect, _waters);
+		return _waters;
 	}
 
 	private List<Area> SelectAreas(Rect rtLocationRect){
