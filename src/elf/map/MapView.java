@@ -50,6 +50,9 @@ public class MapView extends View{
 		_paint.setAntiAlias(true);
 		_paint.setTextSize(20.0f);
 		_paint.setTextAlign(Align.CENTER);
+		
+		for(int i = 0, n = _szVisibleTypes.length; i < n; ++i)
+			_szVisibleTypes[i] = true;
 	}
 
 	public void SetGps(float fLongitude, float fLatitude){
@@ -75,7 +78,7 @@ public class MapView extends View{
 		_Home();
 
 		if(_bmpMap != null){
-			Redraw();
+			_Redraw();
 			invalidate();
 		}
 	}
@@ -97,7 +100,7 @@ public class MapView extends View{
 		_rtSrc.set((int)_szMapMargin.Width(), (int)_szMapMargin.Height(), (int)_szMapMargin.Width() + w, (int)_szMapMargin.Height() + h);
 
 		if(_bmpMap != null){
-			Redraw();
+			_Redraw();
 			invalidate();
 		}
 	}
@@ -105,7 +108,7 @@ public class MapView extends View{
 	public void SetCenter(float fLongitude, float fLatitude){
 		_SetCenter(fLongitude, fLatitude);
 		if(_bmpMap != null){
-			Redraw();
+			_Redraw();
 			invalidate();
 		}
 	}
@@ -117,7 +120,7 @@ public class MapView extends View{
 		_ptLocationCenter.Offset(nLongitudeOffset, nLatitudeOffset);
 
 		if(_bmpMap != null){
-			Redraw();
+			_Redraw();
 			invalidate();
 		}
 	}
@@ -134,7 +137,7 @@ public class MapView extends View{
 		SetLevel(_nLevel - 1);
 
 		if(_bmpMap != null){
-			Redraw();
+			_Redraw();
 			invalidate();
 		}
 	}
@@ -143,22 +146,76 @@ public class MapView extends View{
 		SetLevel(_nLevel + 1);
 
 		if(_bmpMap != null){
-			Redraw();
+			_Redraw();
 			invalidate();
 		}
 	}
 
-	private void Redraw(){
+	private boolean[] _szVisibleTypes = new boolean[5];
+//	private boolean _bLocationVisible = true;
+//	private boolean _bWaterVisible = true;
+//	private boolean _bWaterWayVisible = true;
+//	private boolean _bWayVisible = true;
+//	private boolean _bAreaVisible = true;
+
+	public boolean[] GetVisibleTypes(){
+		return _szVisibleTypes;
+	}
+	
+	public void SetVisibleType(Map.ObjectType type, boolean bVisible){
+		_szVisibleTypes[type.ordinal()] = bVisible;
+	}
+	
+//	public void SetLocationVisible(boolean bVisible){
+//		_bLocationVisible = bVisible;
+//	}
+//
+//	public void SetWaterVisible(boolean bVisible){
+//		_bLocationVisible = bVisible;
+//	}
+//
+//	public void SetWaterWayVisible(boolean bVisible){
+//		_bLocationVisible = bVisible;
+//	}
+//
+//	public void SetWayVisible(boolean bVisible){
+//		_bLocationVisible = bVisible;
+//	}
+//
+//	public void SetAreaVisible(boolean bVisible){
+//		_bLocationVisible = bVisible;
+//	}
+
+	public void Redraw(){
+		_Redraw();
+		invalidate();
+	}
+	
+	private void _Redraw(){
 		Canvas canvas = new Canvas(_bmpMap);
 		_mpMapPainter.Begin(canvas, _ptLocationCenter, _nLevel);
 		_mpMapPainter.DrawBackground();
-		_mpMapPainter.DrawAreas();
-		_mpMapPainter.DrawWaters();
-		_mpMapPainter.DrawWaterWays();
-		_mpMapPainter.DrawWays();
-		_mpMapPainter.DrawLocations();
-		_mpMapPainter.DrawNameOfAreas();
-		_mpMapPainter.DrawNameOfWaters();
+
+		if(_szVisibleTypes[Map.ObjectType.Area.ordinal()])
+			_mpMapPainter.DrawAreas();
+
+		if(_szVisibleTypes[Map.ObjectType.Water.ordinal()])
+			_mpMapPainter.DrawWaters();
+
+		if(_szVisibleTypes[Map.ObjectType.WaterWay.ordinal()])
+			_mpMapPainter.DrawWaterWays();
+
+		if(_szVisibleTypes[Map.ObjectType.Way.ordinal()])
+			_mpMapPainter.DrawWays();
+
+		if(_szVisibleTypes[Map.ObjectType.Location.ordinal()])
+			_mpMapPainter.DrawLocations();
+
+		if(_szVisibleTypes[Map.ObjectType.Area.ordinal()])
+			_mpMapPainter.DrawNameOfAreas();
+
+		if(_szVisibleTypes[Map.ObjectType.Water.ordinal()])
+			_mpMapPainter.DrawNameOfWaters();
 
 		_paint.setColor(Color.BLUE);
 		_mpMapPainter.DrawOval(_ptGps, 5.0f, 5.0f, _paint);
@@ -172,7 +229,7 @@ public class MapView extends View{
 	@Override
 	protected void onDraw(Canvas canvas) {
 		//		if(_bmpMap != null)
-//		canvas.drawColor(0xFF808080);
+		//		canvas.drawColor(0xFF808080);
 		canvas.drawBitmap(_bmpMap, _rtSrc, _rtfDest, _paint);
 
 		//		canvas.drawText(String.valueOf(_rtSrc.left) + ", " + String.valueOf(_rtSrc.top) + ", " + String.valueOf(_rtSrc.width()) + ", " + String.valueOf(_rtSrc.height()), 320, 20, _textPaint);
@@ -202,6 +259,6 @@ public class MapView extends View{
 		//		_bmpMap = Bitmap.createBitmap(nBmpSize, nBmpSize,  Bitmap.Config.RGB_565);
 		_bmpMap = Bitmap.createBitmap(w, h,  Bitmap.Config.RGB_565);
 
-		Redraw();
+		_Redraw();
 	}
 }

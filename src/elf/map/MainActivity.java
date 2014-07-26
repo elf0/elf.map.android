@@ -8,7 +8,10 @@ package elf.map;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.location.Location;
@@ -130,21 +133,22 @@ public class MainActivity extends Activity{
 		public void onClick(View v) {
 			_mvMap.SetLevel(10);
 			_mvMap.SetCenter(_map.Center());
-//			_mvMap.invalidate();
+			//			_mvMap.invalidate();
+			ShowVisibilityDialog(_mvMap.GetVisibleTypes());
 		}
 	};
-	
+
 	private OnClickListener _oclGpsListener = new OnClickListener() {
 		public void onClick(View v) {
 			_mvMap.Home();
-//			_mvMap.invalidate();
+			//			_mvMap.invalidate();
 		}
 	};
 
 	private OnClickListener _oclZoomOutListener = new OnClickListener() {
 		public void onClick(View v) {
 			_mvMap.DecreaseLevel();
-//			_mvMap.invalidate();
+			//			_mvMap.invalidate();
 		}
 	};
 
@@ -207,4 +211,29 @@ public class MainActivity extends Activity{
 		outState.putFloat("Latitude", _ptfGps.y);
 	}
 
+	public void ShowVisibilityDialog(boolean[] szVisibleTypes){
+		final String[] szItems = {"Location", "Water way", "Water", "Way", "Area"};    
+
+		new AlertDialog.Builder(this)
+		.setTitle("Select visible types")
+		.setMultiChoiceItems(szItems, szVisibleTypes, new OnMultiChoiceClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which,
+					boolean isChecked) {
+				// TODO Auto-generated method stub
+				_mvMap.SetVisibleType(Map.ObjectType.values()[which], isChecked);
+			
+				_mvMap.Redraw();
+			}    
+		})   
+		.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+
+			@Override  
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		})
+//		.setNegativeButton("Cancel", null)
+		.show();
+	}
 }

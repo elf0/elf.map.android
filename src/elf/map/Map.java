@@ -16,6 +16,10 @@ import java.util.List;
 import org.apache.http.util.EncodingUtils;
 
 public class Map {
+	public enum ObjectType{
+		Location, WaterWay, Water, Way, Area
+	}
+	
 	private final static float LONGITUDE_F2L = (float)(4294967296.0 / 360.0);
 	private final static float LONGITUDE_L2F = (float)(360.0 / 4294967296.0);
 
@@ -228,21 +232,22 @@ public class Map {
 	}
 
 	private void AddWaterWay(WaterWay way){
-//		if(_waterWays.size() < 1000)
+		if(_waterWays.size() < 1000)
 			_waterWays.add(way);
 	}
 
 	private void AddWay(Way way){
-//		if(_ways.size() < 1000)
+		if(_ways.size() < 1000)
 			_ways.add(way);
 	}
 
 	private void AddWater(Water water){
+//		if(_ways.size() < 1000)
 		_waters.add(water);
 	}
 
 	private void AddArea(Area area){
-//		if(_areas.size() < 1000)
+		if(_areas.size() < 1000)
 			_areas.add(area);
 	}
 
