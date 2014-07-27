@@ -232,12 +232,12 @@ public class Map {
 	}
 
 	private void AddWaterWay(WaterWay way){
-		if(_waterWays.size() < 1000)
+//		if(_waterWays.size() < 1000)
 			_waterWays.add(way);
 	}
 
 	private void AddWay(Way way){
-		if(_ways.size() < 1000)
+//		if(_ways.size() < 1000)
 			_ways.add(way);
 	}
 
@@ -247,7 +247,7 @@ public class Map {
 	}
 
 	private void AddArea(Area area){
-		if(_areas.size() < 1000)
+//		if(_areas.size() < 1000)
 			_areas.add(area);
 	}
 

@@ -19,6 +19,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -63,15 +67,15 @@ public class MainActivity extends Activity{
 		FrameLayout fl = (FrameLayout)findViewById(R.id.rlMainLayout);
 		fl.addView(_mvMap, 0);
 
-		if(savedInstanceState != null){
-			_mvMap.SetGps(savedInstanceState.getFloat("Longitude", 0.0f), savedInstanceState.getFloat("Latitude", 0.0f));
-			//			_mvMap.setGps(2.0f, 2.0f);
-		}
-		else{
+//		if(savedInstanceState != null){
+//			_mvMap.SetGps(savedInstanceState.getFloat("Longitude", 0.0f), savedInstanceState.getFloat("Latitude", 0.0f));
+//			//			_mvMap.setGps(2.0f, 2.0f);
+//		}
+//		else{
 			SharedPreferences pref = this.getPreferences(Activity.MODE_PRIVATE);
 			_mvMap.SetGps(pref.getFloat("Longitude", 0.0f), pref.getFloat("Latitude", 0.0f));
 			//			_mvMap.setGps(1.0f, 1.0f);
-		}
+//		}
 
 		Button btnMapCenter = (Button)findViewById(R.id.btnMapCenter);
 		btnMapCenter.setOnClickListener(_oclMapCenterListener); 
@@ -134,7 +138,6 @@ public class MainActivity extends Activity{
 			_mvMap.SetLevel(10);
 			_mvMap.SetCenter(_map.Center());
 			//			_mvMap.invalidate();
-			ShowVisibilityDialog(_mvMap.GetVisibleTypes());
 		}
 	};
 
@@ -189,26 +192,37 @@ public class MainActivity extends Activity{
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		SharedPreferences pref = this.getPreferences(Activity.MODE_PRIVATE);
-		SharedPreferences.Editor editor = pref.edit();
-		editor.putFloat("Longitude", _ptfGps.x);
-		editor.putFloat("Latitude", _ptfGps.y);
-		editor.commit();
+//		if(isFinishing()){
+//			_exitDialog = new AlertDialog.Builder(this)
+//			.setTitle("Save current GPS position?")
+//			.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+//				@Override  
+//				public void onClick(DialogInterface dialog, int which) {
+//					SharedPreferences pref = getPreferences(Activity.MODE_PRIVATE);
+//					SharedPreferences.Editor editor = pref.edit();
+//					editor.putFloat("Longitude", _ptfGps.x);
+//					editor.putFloat("Latitude", _ptfGps.y);
+//					editor.commit();
+//				}
+//			})
+//			.setNegativeButton("No", null)
+//			.show();
+//		}
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onRestoreInstanceState(savedInstanceState);
-		_mvMap.SetGps(savedInstanceState.getFloat("Longitude", 0.0f), savedInstanceState.getFloat("Latitude", 0.0f));
+//		_mvMap.SetGps(savedInstanceState.getFloat("Longitude", 0.0f), savedInstanceState.getFloat("Latitude", 0.0f));
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
-		outState.putFloat("Longitude", _ptfGps.x);
-		outState.putFloat("Latitude", _ptfGps.y);
+//		outState.putFloat("Longitude", _ptfGps.x);
+//		outState.putFloat("Latitude", _ptfGps.y);
 	}
 
 	public void ShowVisibilityDialog(boolean[] szVisibleTypes){
@@ -223,7 +237,7 @@ public class MainActivity extends Activity{
 					boolean isChecked) {
 				// TODO Auto-generated method stub
 				_mvMap.SetVisibleType(Map.ObjectType.values()[which], isChecked);
-			
+
 				_mvMap.Redraw();
 			}    
 		})   
@@ -233,7 +247,62 @@ public class MainActivity extends Activity{
 			public void onClick(DialogInterface dialog, int which) {
 			}
 		})
-//		.setNegativeButton("Cancel", null)
+		//		.setNegativeButton("Cancel", null)
 		.show();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		//		return super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.layout.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		switch(item.getItemId()){
+		case R.id.menu_filter:
+			ShowVisibilityDialog(_mvMap.GetVisibleTypes());
+			return true;
+			//			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if(keyCode == KeyEvent.KEYCODE_BACK){
+			new AlertDialog.Builder(this)
+			.setTitle("Save current GPS position?")
+			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				@Override  
+				public void onClick(DialogInterface dialog, int which) {
+					SharedPreferences pref = getPreferences(Activity.MODE_PRIVATE);
+					SharedPreferences.Editor editor = pref.edit();
+					editor.putFloat("Longitude", _ptfGps.x);
+					editor.putFloat("Latitude", _ptfGps.y);
+					editor.commit();
+					finish();
+				}
+			})
+			.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				@Override  
+				public void onClick(DialogInterface dialog, int which) {
+					SharedPreferences pref = getPreferences(Activity.MODE_PRIVATE);
+					SharedPreferences.Editor editor = pref.edit();
+					editor.putFloat("Longitude", 0.0f);
+					editor.putFloat("Latitude", 0.0f);
+					editor.commit();
+					finish();
+				}
+			})
+			.show();
+			
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 }

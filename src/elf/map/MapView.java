@@ -214,8 +214,14 @@ public class MapView extends View{
 		if(_szVisibleTypes[Map.ObjectType.Area.ordinal()])
 			_mpMapPainter.DrawNameOfAreas();
 
+		if(_szVisibleTypes[Map.ObjectType.WaterWay.ordinal()])
+			_mpMapPainter.DrawNameOfWaterWays();
+
 		if(_szVisibleTypes[Map.ObjectType.Water.ordinal()])
 			_mpMapPainter.DrawNameOfWaters();
+
+		if(_szVisibleTypes[Map.ObjectType.Way.ordinal()])
+			_mpMapPainter.DrawNameOfWays();
 
 		_paint.setColor(Color.BLUE);
 		_mpMapPainter.DrawOval(_ptGps, 5.0f, 5.0f, _paint);

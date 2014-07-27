@@ -247,7 +247,20 @@ public class MapPainter {
 			path.reset();
 		}
 	}
+	
+	public void DrawNameOfWaterWays(){
+		float fX;
+		float fY;
+		Point location;
 
+		for(WaterWay way: _waterWays){
+			location = way._points.get(0);
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
+			_canvas.drawText(way.strName, fX, fY, _textPaint);
+		}
+	}
+	
 	public void DrawNameOfWaters(){
 		float fX;
 		float fY;
@@ -260,7 +273,20 @@ public class MapPainter {
 			_canvas.drawText(water.strName, fX, fY, _textPaint);
 		}
 	}
+	
+	public void DrawNameOfWays(){
+		float fX;
+		float fY;
+		Point location;
 
+		for(Way way: _ways){
+			location = way._points.get(0);
+			fX = LongitudeToPixel(location.X() - _rtLocationRect.Left());
+			fY = LatitudeToPixel(location.Y() - _rtLocationRect.Top());
+			_canvas.drawText(way.strName, fX, fY, _textPaint);
+		}
+	}
+	
 	public void DrawAreas(){
 		List<Area> areas = SelectAreas(_rtLocationRect);
 
