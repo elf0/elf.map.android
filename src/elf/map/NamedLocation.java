@@ -7,6 +7,8 @@
 package elf.map;
 
 public class NamedLocation extends Point{
+	public NamedLocation(){}
+	
 	public NamedLocation(String strName, long nLongitude, long nLatitude){
 		super(nLongitude, nLatitude);
 		this.strName = strName;

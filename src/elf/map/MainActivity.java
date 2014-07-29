@@ -50,7 +50,7 @@ public class MainActivity extends Activity{
 
 		//Map
 		String strMapFile = Environment.getExternalStorageDirectory().getAbsolutePath();
-		strMapFile += "/elf/map/elf.map";
+		strMapFile += "/elf/map";
 		_map.Open(strMapFile);
 
 		//PixelMap
@@ -138,6 +138,7 @@ public class MainActivity extends Activity{
 			_mvMap.SetLevel(10);
 			_mvMap.SetCenter(_map.Center());
 			//			_mvMap.invalidate();
+			ShowVisibilityDialog(_mvMap.GetVisibleTypes());
 		}
 	};
 
@@ -303,6 +304,7 @@ public class MainActivity extends Activity{
 			.show();
 			
 		}
+
 		return super.onKeyDown(keyCode, event);
 	}
 }

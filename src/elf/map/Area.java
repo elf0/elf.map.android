@@ -6,20 +6,24 @@
 
 package elf.map;
 
-import java.util.ArrayList;
-import java.util.List;
+//import java.util.ArrayList;
+//import java.util.List;
 
 public class Area{
-	public Area(){}
-
-	public Area(String strName){
-		this.strName = strName;
+	public Area(int nPoints){
+		_points = new Point[nPoints];
 	}
 
-	public void Add(long nLongitude, long nLatitude){
-		_points.add(new Point(nLongitude, nLatitude));
-	}
+	//	public Area(String strName){
+	//		this.strName = strName;
+	//	}
 
-	public String strName;
-	public List<Point> _points = new ArrayList<Point>();
+	//	public void Add(long nLongitude, long nLatitude){
+	//		_points.add(new Point(nLongitude, nLatitude));
+	//	}
+
+	public boolean _bWater;
+	public String _strName;
+	//	public List<Point> _points = new ArrayList<Point>();
+	public Point[] _points;
 }
