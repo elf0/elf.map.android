@@ -11,7 +11,7 @@ Features:
  
 Map data converted from osm xml file (http://www.openstreetmap.org).
  
-Use "MapMaker" to convert map. It based on Qt-5.3.1 and linux-x64. 
+Use "MapMaker" to convert map. It based on linux-x64. 
 example:
   "./MapMaker greater-london.osm . -0.95 51.28 0.5 0.5"
  
