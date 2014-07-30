@@ -22,7 +22,7 @@ public class Area{
 	//		_points.add(new Point(nLongitude, nLatitude));
 	//	}
 
-	public boolean _bWater;
+//	public boolean _bWater;
 	public String _strName;
 	//	public List<Point> _points = new ArrayList<Point>();
 	public Point[] _points;

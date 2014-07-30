@@ -49,11 +49,23 @@ public class Map {
 		if(!LoadPoints(strDir))
 			return false;
 
-		if(!LoadLines(strDir))
-			return false;
-
-		if(!LoadAreas(strDir))
-			return false;
+		LoadLines(strDir);
+		LoadWaterLines(strDir);
+		LoadAreas(strDir);
+		LoadWaters(strDir);
+		
+//		if(!LoadLines(strDir))
+//			return false;
+//
+//		if(!LoadWaterLines(strDir))
+//			return false;
+//
+//		if(!LoadAreas(strDir))
+//			return false;
+//		
+//		if(!LoadWaters(strDir))
+//			return false;
+		
 		//		byte[] buffer;
 		//
 		//		try{
@@ -427,7 +439,7 @@ public class Map {
 
 				line = _lines[i] = new Line(nPoints);
 
-				line._bWater = (nType == 0? true : false);
+//				line._bWater = (nType == 0? true : false);
 
 				for(int p = 0; p < nPoints; ++p){
 					line._points[p] = point = new Point();
@@ -488,6 +500,107 @@ public class Map {
 		return true;
 	}
 
+	private boolean LoadWaterLines(String strDir){
+		long nLines;
+		try{
+			FileInputStream fisLLUFile = new FileInputStream(strDir + "/water_lines.llu");
+
+			nLines = ReadLong(fisLLUFile);
+
+			if(nLines == -1){
+				fisLLUFile.close();
+				return false;
+			}
+
+			if(nLines == 0){
+				fisLLUFile.close();
+				return true;
+			}
+
+			_szWaterLines = new Line[(int)nLines];
+
+			Line line;
+			Point point;
+			int nPoints;
+			int nType;
+			for(int i = 0; i < nLines; ++i){
+				nPoints = ReadInt(fisLLUFile);
+				if(nPoints == -1){
+					ClearWaterLines();
+					fisLLUFile.close();
+					return false;
+				}
+
+				nType = ReadInt(fisLLUFile);
+				if(nType == -1){
+					ClearWaterLines();
+					fisLLUFile.close();
+					return false;
+				}
+
+				line = _szWaterLines[i] = new Line(nPoints);
+
+//				line._bWater = (nType == 0? true : false);
+
+				for(int p = 0; p < nPoints; ++p){
+					line._points[p] = point = new Point();
+					if(!ReadPoint(fisLLUFile, point)){
+						ClearWaterLines();
+						fisLLUFile.close();
+						return false;
+					}
+				}
+			}
+
+			fisLLUFile.close();
+		}
+		//		catch(FileNotFoundException e){
+		//			return false;
+		//		}
+		catch (IOException e) {
+			ClearWaterLines();
+			return false;
+		}
+
+		long nStrings;
+		try{
+			FileInputStream fisStrFile = new FileInputStream(strDir + "/water_lines.str");
+
+			nStrings = ReadLong(fisStrFile);
+
+			if(nStrings == -1){
+				ClearWaterLines();
+				fisStrFile.close();
+				return false;
+			}
+
+			if(nLines != nStrings){
+				ClearWaterLines();
+				fisStrFile.close();
+				return false;
+			}
+
+			for(int i = 0; i < nStrings; ++i){
+				//				if(!ReadString(fisStrFile, _szWaterLines[i]._strName)){
+				_szWaterLines[i]._strName = ReadString(fisStrFile);
+				if(_szWaterLines[i]._strName == null){
+					ClearWaterLines();
+					fisStrFile.close();
+					return false;
+				}
+			}
+		}
+		//		catch(FileNotFoundException e){
+		//			return false;
+		//		}
+		catch (IOException e){
+			ClearWaterLines();
+			return false;
+		}
+
+		return true;
+	}
+	
 	private boolean LoadAreas(String strDir){
 		long nAreas;
 		try{
@@ -528,7 +641,7 @@ public class Map {
 
 				area = _areas[i] = new Area(nPoints);
 
-				area._bWater = (nType == 0? true : false);
+//				area._bWater = (nType == 0? true : false);
 
 				for(int p = 0; p < nPoints; ++p){
 					area._points[p] = point = new Point();
@@ -589,6 +702,107 @@ public class Map {
 		return true;
 	}
 
+	private boolean LoadWaters(String strDir){
+		long nAreas;
+		try{
+			FileInputStream fisLLUFile = new FileInputStream(strDir + "/waters.llu");
+
+			nAreas = ReadLong(fisLLUFile);
+
+			if(nAreas == -1){
+				fisLLUFile.close();
+				return false;
+			}
+
+			if(nAreas == 0){
+				fisLLUFile.close();
+				return true;
+			}
+
+			_waters = new Area[(int)nAreas];
+
+			Area area;
+			Point point;
+			int nPoints;
+			int nType;
+			for(int i = 0; i < nAreas; ++i){
+				nPoints = ReadInt(fisLLUFile);
+				if(nPoints == -1){
+					ClearWaters();
+					fisLLUFile.close();
+					return false;
+				}
+
+				nType = ReadInt(fisLLUFile);
+				if(nType == -1){
+					ClearWaters();
+					fisLLUFile.close();
+					return false;
+				}
+
+				area = _waters[i] = new Area(nPoints);
+
+//				area._bWater = (nType == 0? true : false);
+
+				for(int p = 0; p < nPoints; ++p){
+					area._points[p] = point = new Point();
+					if(!ReadPoint(fisLLUFile, point)){
+						ClearWaters();
+						fisLLUFile.close();
+						return false;
+					}
+				}
+			}
+
+			fisLLUFile.close();
+		}
+		//		catch(FileNotFoundException e){
+		//			return false;
+		//		}
+		catch (IOException e) {
+			ClearWaters();
+			return false;
+		}
+
+		long nStrings;
+		try{
+			FileInputStream fisStrFile = new FileInputStream(strDir + "/waters.str");
+
+			nStrings = ReadLong(fisStrFile);
+
+			if(nStrings == -1){
+				ClearWaters();
+				fisStrFile.close();
+				return false;
+			}
+
+			if(nAreas != nStrings){
+				ClearWaters();
+				fisStrFile.close();
+				return false;
+			}
+
+			for(int i = 0; i < nStrings; ++i){
+				//				if(!ReadString(fisStrFile, _areas[i]._strName)){
+				_waters[i]._strName = ReadString(fisStrFile);
+				if(_waters[i]._strName == null){
+					ClearWaters();
+					fisStrFile.close();
+					return false;
+				}
+			}
+		}
+		//		catch(FileNotFoundException e){
+		//			return false;
+		//		}
+		catch (IOException e){
+			ClearWaters();
+			return false;
+		}
+
+		return true;
+	}
+	
 	public void Close(){
 		Clear();
 	}
@@ -616,13 +830,10 @@ public class Map {
 	//	}
 
 	public void SelectWaterWays(Rect rect, List<Line> ways){
-		if(_lines == null)
+		if(_szWaterLines == null)
 			return;
 
-		for(Line line: _lines){
-			if(!line._bWater)
-				continue;
-
+		for(Line line: _szWaterLines){
 			for(Point location: line._points){
 				if(rect.Contains(location)){
 					ways.add(line);
@@ -641,9 +852,6 @@ public class Map {
 			return;
 
 		for(Line line: _lines){
-			if(line._bWater)
-				continue;
-
 			for(Point location: line._points){
 				if(rect.Contains(location)){
 					ways.add(line);
@@ -658,13 +866,10 @@ public class Map {
 	//	}
 
 	public void SelectWaters(Rect rect, List<Area> waters){
-		if(_areas == null)
+		if(_waters == null)
 			return;
-		
-		for(Area area: _areas){
-			if(!area._bWater)
-				continue;
 
+		for(Area area: _waters){
 			for(Point location: area._points){
 				if(rect.Contains(location)){
 					waters.add(area);
@@ -683,9 +888,6 @@ public class Map {
 			return;
 
 		for(Area area: _areas){
-			if(area._bWater)
-				continue;
-
 			for(Point location: area._points){
 				if(rect.Contains(location)){
 					areas.add(area);
@@ -723,7 +925,9 @@ public class Map {
 	private void Clear(){
 		ClearLocations();
 		ClearLines();
+		ClearWaterLines();
 		ClearAreas();
+		ClearWaters();
 	}
 
 	private void ClearLocations(){
@@ -745,6 +949,15 @@ public class Map {
 		_lines = null;
 	}
 
+	private void ClearWaterLines(){
+		if(_szWaterLines != null){
+			for(int i = 0, n = _szWaterLines.length; i < n; ++i){
+				_szWaterLines[i] = null;
+			}
+		}
+		_szWaterLines = null;
+	}
+
 	private void ClearAreas(){
 		if(_areas != null){
 			for(int i = 0, n = _areas.length; i < n; ++i){
@@ -755,6 +968,15 @@ public class Map {
 		_areas = null;
 	}
 
+	private void ClearWaters(){
+		if(_waters != null){
+			for(int i = 0, n = _waters.length; i < n; ++i){
+				_waters[i] = null;
+			}
+		}
+
+		_waters = null;
+	}
 
 	//	private void ClearWaterWays(){
 	//		ClearLines(_waterWays);
@@ -776,8 +998,9 @@ public class Map {
 	//	private List<NamedLocation> _locations = new ArrayList<NamedLocation>();
 	private NamedLocation[] _locations;
 	private Line[] _lines;
+	private Line[] _szWaterLines;
 	//	private Line[] _ways;
 	//	private Line[] _waterWays;
-	//	private Area[] _waters;
+	private Area[] _waters;
 	private Area[] _areas;
 }
