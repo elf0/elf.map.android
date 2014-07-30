@@ -16,7 +16,7 @@ example:
   "./MapMaker greater-london.osm . -0.95 51.28 0.5 0.5"
  
 Binary files:
-  Apk and "MapMaker" can be download from "http://elf-map.sourceforge.net/".
+  Apk and "MapMaker" can be downloaded from "http://elf-map.sourceforge.net/".
   
 Note:
   It supply small region, and slow performance now! Better in future. 
