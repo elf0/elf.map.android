@@ -19,6 +19,6 @@ Binary files:
   Apk and "MapMaker" can be downloaded from "http://elf-map.sourceforge.net/".
   
 Note:
-  It supply small region, and slow performance now! Better in future. 
+  It support small region, and slow performance now! Better in future. 
 
 
