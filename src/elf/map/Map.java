@@ -6,17 +6,13 @@
 
 package elf.map;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
+
 import java.io.FileInputStream;
 //import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.util.EncodingUtils;
 
 public class Map {
 	public enum ObjectType{
@@ -26,9 +22,10 @@ public class Map {
 	private final static float LONGITUDE_F2L = (float)(4294967296.0 / 360.0);
 	private final static float LONGITUDE_L2F = (float)(360.0 / 4294967296.0);
 
-	public static long Longitude_FloatToLong(float fLongitude){
-		return (long)((180.0f + fLongitude) * LONGITUDE_F2L);
-	}
+	public static native long LongitudeFloatToLong(float fLongitude);
+//	public static long Longitude_FloatToLong(float fLongitude){
+//		return (long)((180.0f + fLongitude) * LONGITUDE_F2L);
+//	}
 
 	public static float Longitude_LongToFloat(long nLongitude){
 		return nLongitude * LONGITUDE_L2F - 180.0f;
@@ -37,9 +34,10 @@ public class Map {
 	private final static float LATITUDE_F2L = (float)(4294967296.0 / 360.0);
 	private final static float LATITUDE_L2F = (float)(360.0 / 4294967296.0);
 
-	public static long Latitude_FloatToLong(float fLatitude){
-		return (long)((90.0f - fLatitude) * LATITUDE_F2L);
-	}
+	public static native long LatitudeFloatToLong(float fLatitude);
+//	public static long Latitude_FloatToLong(float fLatitude){
+//		return (long)((90.0f - fLatitude) * LATITUDE_F2L);
+//	}
 
 	public static float Latitude_LongToFloat(long nLatitude){
 		return 90.0f - nLatitude * LATITUDE_L2F;
@@ -65,108 +63,6 @@ public class Map {
 //		
 //		if(!LoadWaters(strDir))
 //			return false;
-		
-		//		byte[] buffer;
-		//
-		//		try{
-		//			FileInputStream fisMapFile = new FileInputStream(strDir + "/elf.map");
-		//			buffer = new byte[fisMapFile.available()]; 
-		//			int n = fisMapFile.read(buffer);
-		//			fisMapFile.close();
-		//			if(n <= 0)
-		//				return false;
-		//		}
-		//		//		catch(FileNotFoundException e){
-		//		//			return false;
-		//		//		}
-		//		catch (IOException e) {
-		//			return false;
-		//		}
-		//
-		//		String strLine;
-		//		byte[] subBuffer;
-		//		int iLine;
-		//		int nLineSize;
-		//		int i = 0;
-		//		int n = buffer.length;
-		//		iLine = i;
-		//		while(buffer[i] != '\n')
-		//			++i;
-		//		nLineSize = i - iLine;
-		//		subBuffer = new byte[nLineSize];
-		//		System.arraycopy(buffer, iLine, subBuffer, 0, nLineSize);
-		//		try {
-		//			strLine = new String(subBuffer, "UTF-8");
-		//		} catch (UnsupportedEncodingException e) {
-		//			// TODO Auto-generated catch block
-		//			//				e.printStackTrace();
-		//			return false;
-		//		}
-		//		String[] items = strLine.split(",");
-		//		if(items.length != 4)
-		//			return false;
-		//		_ptCenter.Set(Long.valueOf(items[0]), Long.valueOf(items[1]));
-		//		++i;
-		//
-		//
-		//
-		//		for(; i < n; ++i){
-		//			iLine = i;
-		//			while(buffer[i] != '\n')
-		//				++i;
-		//
-		//			nLineSize = i - iLine;
-		//			subBuffer = new byte[nLineSize];
-		//			System.arraycopy(buffer, iLine, subBuffer, 0, nLineSize);
-		//			try {
-		//				strLine = new String(subBuffer, "UTF-8");
-		//			} catch (UnsupportedEncodingException e) {
-		//				// TODO Auto-generated catch block
-		//				//				e.printStackTrace();
-		//				return false;
-		//			}
-		//
-		//
-		//			items = strLine.split("\"");
-		//			if(items.length < 4){
-		//				Clear();
-		//				return false;
-		//			}
-		//
-		//			switch(items[0]){
-		//			case "0":
-		//				//				AddLocation(items[1], Long.valueOf(items[2]), Long.valueOf(items[3]));
-		//				break;
-		//			case "1":{
-		//				WaterWay way = new WaterWay(items[1]);
-		//				for(int iLL = 2, nItems = items.length; iLL < nItems; iLL += 2){
-		//					way.Add(Long.valueOf(items[iLL]), Long.valueOf(items[iLL + 1]));
-		//				}
-		//				AddWaterWay(way);
-		//			}break;
-		//			case "2":{
-		//				Water water = new Water(items[1]);
-		//				for(int iLL = 2, nItems = items.length; iLL < nItems; iLL += 2){
-		//					water.Add(Long.valueOf(items[iLL]), Long.valueOf(items[iLL + 1]));
-		//				}
-		//				AddWater(water);
-		//			}break;
-		//			case "3":{
-		//				Way way = new Way(items[1]);
-		//				for(int iLL = 2, nItems = items.length; iLL < nItems; iLL += 2){
-		//					way.Add(Long.valueOf(items[iLL]), Long.valueOf(items[iLL + 1]));
-		//				}
-		//				AddWay(way);
-		//			}break;
-		//			case "4":{
-		//				Area area = new Area(items[1]);
-		//				for(int iLL = 2, nItems = items.length; iLL < nItems; iLL += 2){
-		//					area.Add(Long.valueOf(items[iLL]), Long.valueOf(items[iLL + 1]));
-		//				}
-		//				AddArea(area);
-		//			}break;
-		//			}
-		//		}
 		return true;
 	}
 
@@ -254,36 +150,6 @@ public class Map {
 				, ((long)_buffer8[4] & 0xFF) | (((long)_buffer8[5] & 0xFF) << 8) | (((long)_buffer8[6] & 0xFF) << 16) | (((long)_buffer8[7] & 0xFF) << 24));
 		return true;
 	}
-
-	//	private boolean ReadString(InputStream stream, String str){
-	//		int nSize = ReadU8(stream);
-	//		if(nSize == -1)
-	//			return false;
-	//
-	//		byte[] buffer = new byte[nSize];
-	//
-	//		int n;
-	//		try {
-	//			n = stream.read(buffer);
-	//		} catch (IOException e) {
-	//			// TODO Auto-generated catch block
-	//			//			e.printStackTrace();
-	//			return false;
-	//		}
-	//
-	//		if(n != nSize)
-	//			return false;
-	//
-	//		try {
-	//			str = new String(buffer, "UTF-8");
-	//		} catch (UnsupportedEncodingException e) {
-	//			// TODO Auto-generated catch block
-	//			//				e.printStackTrace();
-	//			return false;
-	//		}
-	//
-	//		return true;
-	//	}
 
 	private String ReadString(InputStream stream){
 		int nSize = ReadU8(stream);
@@ -379,7 +245,6 @@ public class Map {
 			}
 
 			for(int i = 0; i < nStrings; ++i){
-				//				if(!ReadString(fisStrFile, _locations[i].strName)){
 				_locations[i].strName = ReadString(fisStrFile);
 				if(_locations[i].strName == null){
 					ClearLocations();
@@ -439,8 +304,6 @@ public class Map {
 
 				line = _lines[i] = new Line(nPoints);
 
-//				line._bWater = (nType == 0? true : false);
-
 				for(int p = 0; p < nPoints; ++p){
 					line._points[p] = point = new Point();
 					if(!ReadPoint(fisLLUFile, point)){
@@ -480,7 +343,6 @@ public class Map {
 			}
 
 			for(int i = 0; i < nStrings; ++i){
-				//				if(!ReadString(fisStrFile, _lines[i]._strName)){
 				_lines[i]._strName = ReadString(fisStrFile);
 				if(_lines[i]._strName == null){
 					ClearLines();
@@ -540,8 +402,6 @@ public class Map {
 
 				line = _szWaterLines[i] = new Line(nPoints);
 
-//				line._bWater = (nType == 0? true : false);
-
 				for(int p = 0; p < nPoints; ++p){
 					line._points[p] = point = new Point();
 					if(!ReadPoint(fisLLUFile, point)){
@@ -581,7 +441,6 @@ public class Map {
 			}
 
 			for(int i = 0; i < nStrings; ++i){
-				//				if(!ReadString(fisStrFile, _szWaterLines[i]._strName)){
 				_szWaterLines[i]._strName = ReadString(fisStrFile);
 				if(_szWaterLines[i]._strName == null){
 					ClearWaterLines();
@@ -641,8 +500,6 @@ public class Map {
 
 				area = _areas[i] = new Area(nPoints);
 
-//				area._bWater = (nType == 0? true : false);
-
 				for(int p = 0; p < nPoints; ++p){
 					area._points[p] = point = new Point();
 					if(!ReadPoint(fisLLUFile, point)){
@@ -682,7 +539,6 @@ public class Map {
 			}
 
 			for(int i = 0; i < nStrings; ++i){
-				//				if(!ReadString(fisStrFile, _areas[i]._strName)){
 				_areas[i]._strName = ReadString(fisStrFile);
 				if(_areas[i]._strName == null){
 					ClearAreas();
@@ -742,8 +598,6 @@ public class Map {
 
 				area = _waters[i] = new Area(nPoints);
 
-//				area._bWater = (nType == 0? true : false);
-
 				for(int p = 0; p < nPoints; ++p){
 					area._points[p] = point = new Point();
 					if(!ReadPoint(fisLLUFile, point)){
@@ -783,7 +637,6 @@ public class Map {
 			}
 
 			for(int i = 0; i < nStrings; ++i){
-				//				if(!ReadString(fisStrFile, _areas[i]._strName)){
 				_waters[i]._strName = ReadString(fisStrFile);
 				if(_waters[i]._strName == null){
 					ClearWaters();
@@ -897,31 +750,6 @@ public class Map {
 		}
 	}
 
-	//	private void AddLocation(String strName, long nLongitude, long nLatitude){
-	//		NamedLocation l = new NamedLocation(strName, nLongitude, nLatitude);
-	//		_locations.add(l);
-	//	}
-
-	//	private void AddWaterWay(Line way){
-	//		if(_waterWays.size() < 1000)
-	//			_waterWays.add(way);
-	//	}
-	//
-	//	private void AddWay(Line way){
-	//		if(_ways.size() < 1000)
-	//			_ways.add(way);
-	//	}
-	//
-	//	private void AddWater(Area water){
-	//		if(_ways.size() < 1000)
-	//			_waters.add(water);
-	//	}
-	//
-	//	private void AddArea(Area area){
-	//		if(_areas.size() < 1000)
-	//			_areas.add(area);
-	//	}
-
 	private void Clear(){
 		ClearLocations();
 		ClearLines();
@@ -978,29 +806,11 @@ public class Map {
 		_waters = null;
 	}
 
-	//	private void ClearWaterWays(){
-	//		ClearLines(_waterWays);
-	//		_waterWays = null;
-	//	}
-	//
-	//	private void ClearWaters(){
-	//		if(_waters != null){
-	//			for(int i = 0, n = _waters.length; i < n; ++i){
-	//				_waters[i] = null;
-	//			}
-	//		}
-	//
-	//		_waters = null;
-	//	}
-
-
 	private Point _ptCenter = new Point();
-	//	private List<NamedLocation> _locations = new ArrayList<NamedLocation>();
 	private NamedLocation[] _locations;
 	private Line[] _lines;
 	private Line[] _szWaterLines;
-	//	private Line[] _ways;
-	//	private Line[] _waterWays;
 	private Area[] _waters;
 	private Area[] _areas;
+
 }

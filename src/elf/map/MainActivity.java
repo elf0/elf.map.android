@@ -135,7 +135,7 @@ public class MainActivity extends Activity{
 
 	private OnClickListener _oclMapCenterListener = new OnClickListener() {
 		public void onClick(View v) {
-			_mvMap.SetLevel(10);
+//			_mvMap.SetLevel(10);
 			_mvMap.SetCenter(_map.Center());
 			//			_mvMap.invalidate();
 			ShowVisibilityDialog(_mvMap.GetVisibleTypes());
@@ -181,7 +181,7 @@ public class MainActivity extends Activity{
 			float fOffsetY = y - _ptfLastPoint.y;
 			if(fOffsetX >= 10.0f || fOffsetX <= -10.0f || fOffsetY >= 10.0f || fOffsetY <= -10.0f){
 				_mvMap.PixelOffset(-(int)fOffsetX, -(int)fOffsetY);
-				_mvMap.invalidate();
+//				_mvMap.invalidate();
 				_ptfLastPoint.set(x, y);
 			}
 		}break;
@@ -306,5 +306,9 @@ public class MainActivity extends Activity{
 		}
 
 		return super.onKeyDown(keyCode, event);
+	}
+	
+	static{
+		System.loadLibrary("map");
 	}
 }
