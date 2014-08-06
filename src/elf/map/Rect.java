@@ -30,6 +30,14 @@ public class Rect{
 		return _ptLeftTop.Y();
 	}
 
+	public long Right(){
+		return _ptRightBottom.X();
+	}
+
+	public long Bottom(){
+		return _ptRightBottom.Y();
+	}
+
 	public long Width(){
 		return _ptRightBottom.X() - _ptLeftTop.X();
 	}
@@ -99,7 +107,7 @@ public class Rect{
 		long h2 = h / 2;
 		ptCenter.Set(_ptLeftTop.X() + w2, _ptLeftTop.Y() + h2);
 	}
-	
+
 	public void SetSize(long width, long height){
 		SetWidth(width);
 		SetHeight(height);
@@ -118,6 +126,27 @@ public class Rect{
 		Set(rect.Left(), rect.Top(), rect.Width(), rect.Height());
 	}
 
+	public void SetBoundingLeft(long value){
+		_ptLeftTop.SetX(value);
+	}
+
+	public void SetBoundingTop(long value){
+		_ptLeftTop.SetY(value);
+	}
+
+	public void SetBoundingRight(long value){
+		_ptRightBottom.SetX(value);
+	}
+
+	public void SetBoundingBottom(long value){
+		_ptRightBottom.SetY(value);
+	}
+
+	public void SetBound(long left, long top, long right, long bottom){
+		_ptLeftTop.Set(left, top);
+		_ptRightBottom.Set(right, bottom);
+	}
+
 	public void Offset(long x, long y){
 		_ptLeftTop.Offset(x, y);
 		_ptRightBottom.Offset(x, y);
@@ -131,6 +160,9 @@ public class Rect{
 		return Contains(point.X(), point.Y());
 	}
 
+	public boolean Intersects(Rect rect){
+		return rect.Left() < Right() && rect.Right() >= Left() && rect.Top() < Bottom() && rect.Bottom() >= Top();
+	}
 	private Point _ptLeftTop;
 	private Point _ptRightBottom;
 }

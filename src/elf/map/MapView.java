@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.view.View;
 
@@ -25,6 +26,7 @@ public class MapView extends View{
 
 	private Paint _paint;
 
+	private PointF _ptfGps = new PointF();
 	private Point _ptGps = new Point();
 	private List<Point> _gpsTrace = new ArrayList<Point>();
 
@@ -51,12 +53,14 @@ public class MapView extends View{
 	}
 
 	public void SetGps(float fLongitude, float fLatitude){
+		if(fLongitude == _ptfGps.x && fLatitude == _ptfGps.y)
+			return;
+
 		long nLongitude = Map.LongitudeFloatToLong(fLongitude);
 		long nLatitude = Map.LatitudeFloatToLong(fLatitude);
 
-		if(nLongitude == _ptGps.X() && nLatitude == _ptGps.Y())
-			return;
 
+		_ptfGps.set(fLongitude, nLatitude);
 		_ptGps.Set(nLongitude, nLatitude);
 
 		if(_gpsTrace.size() >= 1000)
@@ -110,8 +114,8 @@ public class MapView extends View{
 		if(_bmpMap == null)
 			return;
 
-		long nLongitudeOffset = _mpMapPainter.PixelToLocation(nX);
-		long nLatitudeOffset = _mpMapPainter.PixelToLocation(nY);
+		long nLongitudeOffset = _mpMapPainter.PixelToLocationLong(nX);
+		long nLatitudeOffset = _mpMapPainter.PixelToLocationLong(nY);
 		long nNewLongitude = _ptLocationCenter.X() + nLongitudeOffset;
 		long nNewLatitude = _ptLocationCenter.Y() + nLatitudeOffset;
 
@@ -186,7 +190,7 @@ public class MapView extends View{
 			_mpMapPainter.DrawWaterWays();
 
 		if(_szVisibleTypes[Map.ObjectType.Way.ordinal()])
-			_mpMapPainter.DrawWays();
+			_mpMapPainter.DrawLines();
 
 		if(_szVisibleTypes[Map.ObjectType.Location.ordinal()])
 			_mpMapPainter.DrawLocations();
@@ -207,7 +211,7 @@ public class MapView extends View{
 		_mpMapPainter.DrawOval(_ptGps, 5.0f, 5.0f, _paint);
 
 		_paint.setColor(Color.RED);
-		_mpMapPainter.DrawText(_ptGps, String.valueOf(Map.Longitude_LongToFloat(_ptGps.X())) + ", " + String.valueOf(Map.Latitude_LongToFloat(_ptGps.Y())), _paint);
+		_mpMapPainter.DrawText(_ptGps, String.valueOf(_ptfGps.x) + ", " + String.valueOf(_ptfGps.y), _paint);
 
 		_mpMapPainter.End();
 	}
@@ -217,6 +221,8 @@ public class MapView extends View{
 		//		if(_bmpMap != null)
 		//		canvas.drawColor(0xFF808080);
 		canvas.drawBitmap(_bmpMap, _rtSrc, _rtfDest, _paint);
+		//		_paint.setColor(Color.RED);
+		//		canvas.drawText(String.valueOf(_nLevel), 100, 100, _paint);
 
 		//		canvas.drawText(String.valueOf(_rtSrc.left) + ", " + String.valueOf(_rtSrc.top) + ", " + String.valueOf(_rtSrc.width()) + ", " + String.valueOf(_rtSrc.height()), 320, 20, _textPaint);
 		//		canvas.drawText(String.valueOf(_rtfDest.left) + ", " + String.valueOf(_rtfDest.top) + ", " + String.valueOf(_rtfDest.width()) + ", " + String.valueOf(_rtfDest.height()), 320, 60, _textPaint);

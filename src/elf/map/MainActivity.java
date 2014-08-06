@@ -39,7 +39,7 @@ public class MainActivity extends Activity{
 	private boolean _bCenter = false;
 	private PointF _ptfGps = new PointF();
 
-	private Map _map = new Map();
+	private Map _map;
 	private MapStyle _msMapStyle = new MapStyle();
 	private MapPainter _mpMapPainter = new MapPainter();
 	private MapView _mvMap;
@@ -51,7 +51,7 @@ public class MainActivity extends Activity{
 		//Map
 		String strMapFile = Environment.getExternalStorageDirectory().getAbsolutePath();
 		strMapFile += "/elf/map";
-		_map.Open(strMapFile);
+		_map = new Map(strMapFile);
 
 		//PixelMap
 		_mpMapPainter.SetMap(_map);
@@ -61,7 +61,7 @@ public class MainActivity extends Activity{
 		//MapView
 		_mvMap = new MapView(this, _mpMapPainter);
 		_mvMap.SetLevel(10);
-		_mvMap.SetCenter(_map.Center());
+//		_mvMap.SetCenter(_map.Center());
 
 		setContentView(R.layout.activity_main);
 		FrameLayout fl = (FrameLayout)findViewById(R.id.rlMainLayout);
@@ -107,7 +107,7 @@ public class MainActivity extends Activity{
 
 				if(!_bCenter){
 					_bCenter = true;
-					_mvMap.SetCenter(fX, fY);
+//					_mvMap.SetCenter(fX, fY);
 				}
 				_mvMap.SetGps(fX, fY);
 				_mvMap.invalidate();
@@ -136,8 +136,7 @@ public class MainActivity extends Activity{
 	private OnClickListener _oclMapCenterListener = new OnClickListener() {
 		public void onClick(View v) {
 //			_mvMap.SetLevel(10);
-			_mvMap.SetCenter(_map.Center());
-			//			_mvMap.invalidate();
+			_mvMap.SetCenter(0.0f, 0.0f);
 			ShowVisibilityDialog(_mvMap.GetVisibleTypes());
 		}
 	};
