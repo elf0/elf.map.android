@@ -138,6 +138,19 @@ public class Tile{
 			int nPoints;
 			int nType;
 			for(int i = 0; i < nLines; ++i){
+				nType = ReadInt(fisLLUFile);
+				if(nType == -1){
+					//					ClearLines();
+					fisLLUFile.close();
+					return false;
+				}
+
+				Rect rtBoundingRect = new Rect();
+				if(!ReadRect(fisLLUFile, rtBoundingRect)){
+					fisLLUFile.close();
+					return false;
+				}
+				
 				nPoints = ReadInt(fisLLUFile);
 				//				if(nPoints == -1){
 				if(nPoints < 0){
@@ -146,15 +159,8 @@ public class Tile{
 					return false;
 				}
 
-				nType = ReadInt(fisLLUFile);
-				if(nType == -1){
-					//					ClearLines();
-					fisLLUFile.close();
-					return false;
-				}
-
 				line = _szLines[i] = new Line(nPoints);
-
+				line._rtBoundingRect = rtBoundingRect;
 				for(int p = 0; p < nPoints; ++p){
 					point = new Point();
 					if(!ReadPoint(fisLLUFile, point)){
@@ -238,13 +244,6 @@ public class Tile{
 			int nPoints;
 			int nType;
 			for(int i = 0; i < nAreas; ++i){
-				nPoints = ReadInt(fisLLUFile);
-				if(nPoints == -1){
-					//					ClearAreas();
-					fisLLUFile.close();
-					return false;
-				}
-
 				nType = ReadInt(fisLLUFile);
 				if(nType == -1){
 					//					ClearAreas();
@@ -252,8 +251,21 @@ public class Tile{
 					return false;
 				}
 
-				area = _szAreas[i] = new Area(nPoints);
+				Rect rtBoundingRect = new Rect();
+				if(!ReadRect(fisLLUFile, rtBoundingRect)){
+					fisLLUFile.close();
+					return false;
+				}
+				
+				nPoints = ReadInt(fisLLUFile);
+				if(nPoints == -1){
+					//					ClearAreas();
+					fisLLUFile.close();
+					return false;
+				}
 
+				area = _szAreas[i] = new Area(nPoints);
+				area._rtBoundingRect = rtBoundingRect;
 				for(int p = 0; p < nPoints; ++p){
 					point = new Point();
 					if(!ReadPoint(fisLLUFile, point)){
@@ -337,6 +349,19 @@ public class Tile{
 			int nPoints;
 			int nType;
 			for(int i = 0; i < nLines; ++i){
+				nType = ReadInt(fisLLUFile);
+				if(nType == -1){
+					//					ClearLines();
+					fisLLUFile.close();
+					return false;
+				}
+				
+				Rect rtBoundingRect = new Rect();
+				if(!ReadRect(fisLLUFile, rtBoundingRect)){
+					fisLLUFile.close();
+					return false;
+				}
+				
 				nPoints = ReadInt(fisLLUFile);
 				//				if(nPoints == -1){
 				if(nPoints < 0){
@@ -345,14 +370,8 @@ public class Tile{
 					return false;
 				}
 
-				nType = ReadInt(fisLLUFile);
-				if(nType == -1){
-					//					ClearLines();
-					fisLLUFile.close();
-					return false;
-				}
-
 				line = _szWaterLines[i] = new Line(nPoints);
+				line._rtBoundingRect = rtBoundingRect;
 
 				for(int p = 0; p < nPoints; ++p){
 					point = new Point();
@@ -436,13 +455,6 @@ public class Tile{
 			int nPoints;
 			int nType;
 			for(int i = 0; i < nAreas; ++i){
-				nPoints = ReadInt(fisLLUFile);
-				if(nPoints == -1){
-					//					ClearAreas();
-					fisLLUFile.close();
-					return false;
-				}
-
 				nType = ReadInt(fisLLUFile);
 				if(nType == -1){
 					//					ClearAreas();
@@ -450,7 +462,21 @@ public class Tile{
 					return false;
 				}
 
+				Rect rtBoundingRect = new Rect();
+				if(!ReadRect(fisLLUFile, rtBoundingRect)){
+					fisLLUFile.close();
+					return false;
+				}
+				
+				nPoints = ReadInt(fisLLUFile);
+				if(nPoints == -1){
+					//					ClearAreas();
+					fisLLUFile.close();
+					return false;
+				}
+
 				area = _szWaters[i] = new Area(nPoints);
+				area._rtBoundingRect = rtBoundingRect;
 
 				for(int p = 0; p < nPoints; ++p){
 					point = new Point();
@@ -594,6 +620,10 @@ public class Tile{
 		point.Set(((long)_buffer8[0] & 0xFF) | (((long)_buffer8[1] & 0xFF) << 8) | (((long)_buffer8[2] & 0xFF) << 16) | (((long)_buffer8[3] & 0xFF) << 24)
 				, ((long)_buffer8[4] & 0xFF) | (((long)_buffer8[5] & 0xFF) << 8) | (((long)_buffer8[6] & 0xFF) << 16) | (((long)_buffer8[7] & 0xFF) << 24));
 		return true;
+	}
+
+	private boolean ReadRect(InputStream stream, Rect rect){
+		return ReadPoint(stream, rect.LeftTop()) && ReadPoint(stream, rect.RightBottom());
 	}
 
 	private String ReadString(InputStream stream){

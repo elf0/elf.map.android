@@ -13,21 +13,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import android.graphics.RectF;
+import android.util.Log;
 
 public class Map {
 	private String _strRootPath;
 
 	public Map(String strRootDir){
 		_strRootPath = strRootDir;
-		//		_szTiles[0] = new Tile();
-		//		_szTiles[1] = new Tile();
-		//		_szTiles[2] = new Tile();
-		//		_szTiles[3] = new Tile();
 	}
 
 	public enum ObjectType{
@@ -99,9 +99,7 @@ public class Map {
 	//	}
 
 	private Rect _rtBoundingRect;
-	//	private String[] _szDirs = new String[4];
-	//	private String _strLeftDir;
-	//	private String _strRightDir;
+
 
 	private List<Integer> _lstTileKeys = new LinkedList<Integer>();
 	private java.util.Map<Integer, Tile> _mapTiles = new HashMap<Integer, Tile>();
@@ -172,8 +170,8 @@ public class Map {
 				else{
 					int i = 0;
 					for(int n = _lstTileKeys.size(); i < n; ++i){
-					 if(_lstTileKeys.get(i) == nKey)
-						 break;
+						if(_lstTileKeys.get(i) == nKey)
+							break;
 					}
 					_lstTileKeys.remove(i);
 					_lstTileKeys.add(nKey);

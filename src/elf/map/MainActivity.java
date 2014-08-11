@@ -62,7 +62,7 @@ public class MainActivity extends Activity{
 		_mvMap = new MapView(this, _mpMapPainter);
 		_mvMap.SetLevel(10);
 //		_mvMap.SetCenter(_map.Center());
-
+		
 		setContentView(R.layout.activity_main);
 		FrameLayout fl = (FrameLayout)findViewById(R.id.rlMainLayout);
 		fl.addView(_mvMap, 0);
@@ -107,7 +107,7 @@ public class MainActivity extends Activity{
 
 				if(!_bCenter){
 					_bCenter = true;
-//					_mvMap.SetCenter(fX, fY);
+					_mvMap.SetCenter(fX, fY);
 				}
 				_mvMap.SetGps(fX, fY);
 				_mvMap.invalidate();
@@ -136,7 +136,6 @@ public class MainActivity extends Activity{
 	private OnClickListener _oclMapCenterListener = new OnClickListener() {
 		public void onClick(View v) {
 //			_mvMap.SetLevel(10);
-			_mvMap.SetCenter(0.0f, 0.0f);
 			ShowVisibilityDialog(_mvMap.GetVisibleTypes());
 		}
 	};

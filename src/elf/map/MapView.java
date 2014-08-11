@@ -60,7 +60,7 @@ public class MapView extends View{
 		long nLatitude = Map.LatitudeFloatToLong(fLatitude);
 
 
-		_ptfGps.set(fLongitude, nLatitude);
+		_ptfGps.set(fLongitude, fLatitude);
 		_ptGps.Set(nLongitude, nLatitude);
 
 		if(_gpsTrace.size() >= 1000)
